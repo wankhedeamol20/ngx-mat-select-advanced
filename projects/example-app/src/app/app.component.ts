@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NgxMatSelectAdvancedComponent } from '../../../ngx-mat-select-advanced/src/public-api';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NgxMatSelectAdvancedComponent],
+  imports: [RouterOutlet, CommonModule, FormsModule, ReactiveFormsModule, NgxMatSelectAdvancedComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -17,7 +18,7 @@ export class AppComponent {
   ) {
     this.form = this.fb.group({
       colors: ['Gray'],
-      groupB: [null]
+      cities: [null]
     });
   }
 
@@ -54,19 +55,22 @@ export class AppComponent {
     "Anantapur", "Nadiad", "Alappuzha", "Bardhaman", "Tinsukia", "Tonk"
   ];
 
-  onNewColorAdded(newName: string): void {
-    console.log('New color added:', newName);
+  onNewColorAdded(newColor: string): void {
+    console.log('New color added:', newColor);
   }
 
   onColorValueChange(value: string | null): void {
     console.log('Selected color value:', value);
   }
 
-  onNewCityAdded(newName: string): void {
-    console.log('New color added:', newName);
+  onNewCityAdded(newCity: string): void {
+    console.log('New city added:', newCity);
   }
 
   onCitiesValueChange(value: string | null): void {
-    console.log('Selected citi value:', value);
+    console.log('Selected city value:', value);
+  }
+  test() {
+    console.log('test', this.form.value);
   }
 }

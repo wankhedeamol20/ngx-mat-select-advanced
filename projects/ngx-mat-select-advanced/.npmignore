@@ -1,0 +1,15 @@
+# Ignore files and folders
+node_modules
+.git
+.vscode
+dist
+e2e
+coverage
+angular.json
+karma.conf.js
+tsconfig.json
+.editorconfig
+.gitignore
+.browserslistrc
+.eslint*
+README.md

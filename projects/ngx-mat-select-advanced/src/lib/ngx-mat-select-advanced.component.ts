@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, } from '@angular/forms';
 import { MatFormFieldAppearance, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,7 +12,6 @@ import { MatButtonModule } from '@angular/material/button';
   standalone: true,
   imports: [CommonModule,
     FormsModule,
-    ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
@@ -137,8 +136,8 @@ export class NgxMatSelectAdvancedComponent implements ControlValueAccessor, OnIn
 
   onValueChange(value: string): void {
     this.selectedValue = value;
-    this.valueChange.emit(value); // Emit the value change event
     this.setFirstOption();
+    this.valueChange.emit(value); // Emit the value change event
     this.onTouched(); // Mark control as touched
   }
 
@@ -178,7 +177,6 @@ export class NgxMatSelectAdvancedComponent implements ControlValueAccessor, OnIn
   setFirstOption(): void {
     // Ensure selectedValue is the first element of options
     if (this.selectedValue) {
-      console.log('Selected value:', this.selectedValue);
       // Remove the selectedValue from the options array if it exists
       this.options = this.options.filter(option => option !== this.selectedValue);
       // Insert the selectedValue at the beginning of the options array
