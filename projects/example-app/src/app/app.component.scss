@@ -1,0 +1,47 @@
+
+main {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  box-sizing: inherit;
+  position: relative;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-items: center;
+ 
+} 
+
+.angular-logo {
+  max-width: 9.2rem;
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 3rem;
+}
+
+.content p {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+
+
+@media screen and (max-width: 650px) {
+  .content {
+    flex-direction: column;
+    width: max-content;
+  }
+}

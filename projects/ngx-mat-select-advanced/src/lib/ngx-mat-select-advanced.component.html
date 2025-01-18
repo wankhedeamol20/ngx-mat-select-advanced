@@ -1,0 +1,28 @@
+<mat-form-field [appearance]="appearance" [ngClass]="{ 'disabled': isDisabled }" class="mat-select-advanced">
+  <mat-label>{{ label }}</mat-label>
+  <mat-select [(value)]="selectedValue" (openedChange)="onDropdownOpened();"
+    (selectionChange)="onValueChange($event.value)" [disabled]="isDisabled" [attr.aria-label]="ariaLabel">
+
+    <!-- Search box -->
+    <mat-form-field appearance="fill" class="mat-select-advanced-search" *ngIf="!isDisabled">
+      <input matInput #searchInput type="text" placeholder="{{ placeholder }}" [(ngModel)]="searchText"
+        (input)="filterOptions(searchText)" />
+    </mat-form-field>
+
+    <div mat-select-panel class="mat-select-advanced-panel" (scroll)="onPanelScroll($event)"
+      [style.max-height]="((itemSize * (pageSize)) - 5) + 'px'">
+
+      <mat-option *ngFor="let option of displayedOptions" [value]="option">
+        {{ option }}
+      </mat-option>
+
+      <!-- Add new option -->
+      <mat-option *ngIf="showAddOption && !isDisabled" class="new-option" (click)="addOption(searchText)">
+        {{addNewLabel}} "{{ searchText }}"
+      </mat-option>
+    </div>
+  </mat-select>
+  <button mat-icon-button matSuffix class="scale-75" (click)="clearSelection()" *ngIf="selectedValue && !isDisabled">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-form-field>

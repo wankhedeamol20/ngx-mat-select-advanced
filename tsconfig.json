@@ -10,6 +10,11 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
+    "paths": {
+      "ngx-mat-select-advanced": [
+        "./dist/ngx-mat-select-advanced"
+      ]
+    },
     "esModuleInterop": true,
     "sourceMap": true,
     "declaration": false,
