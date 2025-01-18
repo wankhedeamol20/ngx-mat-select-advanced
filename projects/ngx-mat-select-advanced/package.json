@@ -1,10 +1,37 @@
 {
   "name": "ngx-mat-select-advanced",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "description": "A reusable Angular library for custom mat-select with search and lazy loading",
+  "author": "Amol Wankhede",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wankhedeamol20/ngx-mat-select-advanced.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wankhedeamol20/ngx-mat-select-advanced/issues"
+  },
+  "homepage": "https://github.com/wankhedeamol20/ngx-mat-select-advanced",
+  "keywords": [
+    "angular",
+    "angular-material",
+    "mat-select",
+    "lazy-loading",
+    "search",
+    "scroll",
+    "select",
+    "material",
+    "add-new-option"
+  ],
+  "main": "bundles/ngx-mat-select-advanced.umd.js",
+  "module": "fesm2022/ngx-mat-select-advanced.mjs",
+  "es2022": "fesm2022/ngx-mat-select-advanced.mjs",
+  "typings": "ngx-mat-select-advanced.d.ts",
   "peerDependencies": {
     "@angular/common": "^18.2.0",
-    "@angular/core": "^18.2.0"
+    "@angular/core": "^18.2.0",
+    "@angular/material": "^18.2.0"
   },
+  "license": "MIT",
   "dependencies": {
     "tslib": "^2.3.0"
   },
