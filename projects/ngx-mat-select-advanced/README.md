@@ -43,7 +43,7 @@ npm i ngx-mat-select-advanced
 
 ### Usage  
 
-[StackBlitz working example](https://stackblitz.com)  
+[StackBlitz working example](https://stackblitz.com/~/github.com/wankhedeamol20/ngx-mat-select-advanced?file=projects/example-app/src/app/app.component.ts)  
 
 Import `NgxMatSelectAdvancedComponent` inside the `app.component.ts`:  
 ```typescript
