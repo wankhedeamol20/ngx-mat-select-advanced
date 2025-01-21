@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, forwardRef, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, } from '@angular/forms';
 import { MatFormFieldAppearance, MatFormFieldModule } from '@angular/material/form-field';
@@ -52,6 +52,7 @@ export class NgxMatSelectAdvancedComponent implements ControlValueAccessor, OnIn
   @Input() itemSize: number = 48; // Height of each item in the dropdown
   @Input() appearance: MatFormFieldAppearance = 'fill'; // Material appearance
   @Input() addNewLabel: string = 'Add'; // Label for adding new option button
+  @Input() noOptionsLabel: string = 'No options available'; // Label for no options available
 
   @Output() newOptionAdded = new EventEmitter<string>(); // Emit new option added
 
@@ -72,24 +73,32 @@ export class NgxMatSelectAdvancedComponent implements ControlValueAccessor, OnIn
   private onTouched: () => void = () => { };
 
   ngOnInit(): void {
-    this.rawOptions = [...this.options];
-    this.filteredOptions = [...this.options];
-    this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)]; // Reset displayed options
+   
     if (!this.ariaLabel) {
       this.ariaLabel = this.label; // Default aria-label to label if not provided
     }
 
-    // Set default value if provided
-    if (this.defaultValue && this.options.includes(this.defaultValue)) {
-      this.selectedValue = this.defaultValue;
-    }
+  }
 
-    // If only one option, set to the option
-    else if (this.options.length === 1) {
-      this.selectedValue = this.options[0];
-    }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['options'] && changes['options'].currentValue) {
 
-    this.setFirstOption();
+      this.rawOptions = [...this.options];
+      this.filteredOptions = [...this.options];
+      this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)]; // Reset displayed options
+
+      // Set default value if provided
+      if (this.defaultValue && this.options.includes(this.defaultValue)) {
+        this.selectedValue = this.defaultValue;
+      }
+
+      // If only one option, set to the option
+      else if (this.options.length === 1) {
+        this.selectedValue = this.options[0];
+      }
+
+      this.setFirstOption();
+    }
   }
 
   filterOptions(search: string): void {

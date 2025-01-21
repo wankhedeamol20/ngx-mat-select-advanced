@@ -20,6 +20,12 @@
       <mat-option *ngIf="showAddOption && !isDisabled" class="new-option" (click)="addOption(searchText)">
         {{addNewLabel}} "{{ searchText }}"
       </mat-option>
+
+      <!-- Empty state message -->
+      <mat-option *ngIf="filteredOptions.length === 0 && !searchText" disabled>
+        {{noOptionsLabel}}
+      </mat-option>
+      
     </div>
   </mat-select>
   <button mat-icon-button matSuffix class="scale-75" (click)="clearSelection()" *ngIf="selectedValue && !isDisabled">
