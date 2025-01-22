@@ -24,6 +24,8 @@ export class AppComponent {
 
   form: FormGroup;
 
+  area: string[] = [];
+
   colors: string[] = ["Red", "Blue", "Green", "Yellow", "Purple", "Orange", "Pink", "Brown", "Gray", "Black", "White", "Cyan", "Magenta", "Lime", "Teal", "Olive", "Maroon", "Navy", "Gold", "Silver"];
 
   cities: string[] = [
@@ -70,6 +72,15 @@ export class AppComponent {
   onCitiesValueChange(value: string | null): void {
     console.log('Selected city value:', value);
   }
+
+  onNewAreaAdded(newCity: string): void {
+    console.log('New area added:', newCity);
+  }
+
+  onAreaValueChange(value: string | null): void {
+    console.log('Selected area value:', value);
+  }
+
   test() {
     console.log('test', this.form.value);
   }

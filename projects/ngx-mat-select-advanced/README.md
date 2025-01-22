@@ -29,7 +29,7 @@ npm i ngx-mat-select-advanced
 | `itemSize` | `number` | `48` | Set options height. |
 | `appearance` | `string` | `fill` | Set form feild style `'fill' or 'outline'` . |
 | `addNewLabel` | `string` | `Add` | Set label for new option. |
-
+| `noOptionsLabel` | `string` | `No options available` | Set label for no options. |
 
 
 ### Outputs  

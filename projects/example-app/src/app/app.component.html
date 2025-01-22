@@ -26,7 +26,7 @@
       </defs>
     </svg>
     <h1>Example of <a href="https://github.com/wankhedeamol20/ngx-mat-select-advanced" target="_blank">
-        ngx-mat-select-advanced </a> angular library</h1>
+        ngx-mat-select-advanced </a> Angular library </h1>
   </div>
   <div class="content">
     <form [formGroup]="form">
@@ -47,8 +47,16 @@
           (valueChange)="onCitiesValueChange($event)">
         </ngx-mat-select-advanced>
       </div>
-    </form>
 
+      <div>
+        <p>With no options </p>
+        <ngx-mat-select-advanced formControlName="area" ngDefaultControl [options]="area" [label]="'Area'"
+          [placeholder]="'Search or add a area'" [allowAddNew]="true" [defaultValue]="''" [pageSize]="5" [itemSize]="48"
+          [appearance]="'outline'" [addNewLabel]="'Add'" (newOptionAdded)="onNewCityAdded($event)"
+          (valueChange)="onAreaValueChange($event)">
+        </ngx-mat-select-advanced>
+      </div>
+    </form>
   </div>
 </main>
 
