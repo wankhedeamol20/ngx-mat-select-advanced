@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NgxMatSelectAdvancedComponent } from '../../../ngx-mat-select-advanced/src/public-api';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -11,15 +12,32 @@ import { CommonModule } from '@angular/common';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent {
+export class AppComponent implements OnInit{
 
   constructor(
     private fb: FormBuilder
   ) {
     this.form = this.fb.group({
       colors: ['Gray'],
-      cities: [null]
+      cities: [null],
+      area: [null]
     });
+  }
+
+  ngOnInit(): void {
+
+    this.form.get('colors')?.valueChanges.pipe(distinctUntilChanged()).subscribe((value) => {
+      console.log('selected color', value);
+    });
+
+    this.form.get('cities')?.valueChanges.pipe(distinctUntilChanged()).subscribe((value) => {
+      console.log('selected city', value);
+    });
+
+    this.form.get('area')?.valueChanges.pipe(distinctUntilChanged()).subscribe((value) => {
+      console.log('selected area', value);
+    });
+
   }
 
   form: FormGroup;
@@ -61,24 +79,12 @@ export class AppComponent {
     console.log('New color added:', newColor);
   }
 
-  onColorValueChange(value: string | null): void {
-    console.log('Selected color value:', value);
-  }
-
   onNewCityAdded(newCity: string): void {
     console.log('New city added:', newCity);
   }
 
-  onCitiesValueChange(value: string | null): void {
-    console.log('Selected city value:', value);
-  }
-
   onNewAreaAdded(newCity: string): void {
     console.log('New area added:', newCity);
-  }
-
-  onAreaValueChange(value: string | null): void {
-    console.log('Selected area value:', value);
   }
 
   test() {

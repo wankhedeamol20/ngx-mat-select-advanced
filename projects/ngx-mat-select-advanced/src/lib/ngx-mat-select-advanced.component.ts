@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, forwardRef, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, } from '@angular/forms';
+import { AbstractControl, ControlValueAccessor, FormControl, FormsModule, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, ValidatorFn, } from '@angular/forms';
 import { MatFormFieldAppearance, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -38,6 +38,11 @@ import { MatButtonModule } from '@angular/material/button';
       useExisting: forwardRef(() => NgxMatSelectAdvancedComponent),
       multi: true,
     },
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => NgxMatSelectAdvancedComponent),
+      multi: true,
+    },
   ]
 })
 export class NgxMatSelectAdvancedComponent implements ControlValueAccessor, OnInit {
@@ -53,84 +58,84 @@ export class NgxMatSelectAdvancedComponent implements ControlValueAccessor, OnIn
   @Input() appearance: MatFormFieldAppearance = 'fill'; // Material appearance
   @Input() addNewLabel: string = 'Add'; // Label for adding new option button
   @Input() noOptionsLabel: string = 'No options available'; // Label for no options available
+  @Input() validators: ValidatorFn[] = []; // Accept validators as an input
 
   @Output() newOptionAdded = new EventEmitter<string>(); // Emit new option added
 
   @Output() valueChange = new EventEmitter<string | null>();
 
+  private onChange: any = () => {};
+
+  private onTouched: any = () => {};
+
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
+  control: FormControl = new FormControl();
   filteredOptions: string[] = [];
   displayedOptions: string[] = []; // Options currently displayed in the dropdown
   rawOptions: string[] = [];
   searchText: string = '';
   selectedValue: string | null = null;
   showAddOption: boolean = false;
-  isDisabled: boolean = false; // Track disabled state
-
-  private onChange: (value: string | null) => void = () => { };
-
-  private onTouched: () => void = () => { };
-
+  
   ngOnInit(): void {
-   
     if (!this.ariaLabel) {
-      this.ariaLabel = this.label; // Default aria-label to label if not provided
+      this.ariaLabel = this.label;
     }
-
+    if (this.validators?.length) {
+      this.control.setValidators(this.validators);
+    }
+    this.control.updateValueAndValidity();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['options'] && changes['options'].currentValue) {
-
       this.rawOptions = [...this.options];
       this.filteredOptions = [...this.options];
-      this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)]; // Reset displayed options
+      this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)];
 
-      // Set default value if provided
       if (this.defaultValue && this.options.includes(this.defaultValue)) {
         this.selectedValue = this.defaultValue;
-      }
-
-      // If only one option, set to the option
-      else if (this.options.length === 1) {
+      } else if (this.options.length === 1) {
         this.selectedValue = this.options[0];
       }
-
       this.setFirstOption();
     }
   }
 
+  ngOnDestroy() {
+    this.control.reset();
+  }
+
   filterOptions(search: string): void {
     this.searchText = search.trim();
-    this.filteredOptions = this.options.filter(option =>
-      option.toLowerCase().includes(this.searchText.toLowerCase())
+    this.filteredOptions = this.options.filter((option) =>
+      option.toLowerCase().includes(this.searchText.toLowerCase()),
     );
-    this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)]; // Reset displayed options
-    this.showAddOption = this.allowAddNew && this.searchText !== '' && !this.options.includes(this.searchText);
+    this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)];
+    this.showAddOption =
+      this.allowAddNew && this.searchText !== '' && !this.options.includes(this.searchText);
   }
 
   addOption(option: string): void {
     if (this.allowAddNew && option.trim() && !this.options.includes(option)) {
       this.options.unshift(option);
       this.filteredOptions.push(option);
-      this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)]; // Reset displayed options
+      this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)];
       this.selectedValue = option;
       this.newOptionAdded.emit(option);
-      this.onChange(option); // Notify form control
+      this.control.setValue(this.selectedValue);
     }
   }
 
   onDropdownOpened(): void {
-    setTimeout(() => {
-      if (this.searchInput) {
-        this.searchText = '';
-        this.showAddOption = false;
-        this.filteredOptions = [...this.options];
-        this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)]; // Reset displayed options
-        this.searchInput.nativeElement.focus();
-      }
-    }, 0); // Ensures the focus happens after the panel is fully opened
+    if (this.searchInput) {
+      this.searchText = '';
+      this.showAddOption = false;
+      this.filteredOptions = [...this.options];
+      this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)];
+      this.searchInput.nativeElement.focus();
+    }
   }
 
   clearSelection(): void {
@@ -138,61 +143,69 @@ export class NgxMatSelectAdvancedComponent implements ControlValueAccessor, OnIn
     this.searchText = '';
     this.options = [...this.rawOptions];
     this.filteredOptions = [...this.options];
-    this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)]; // Reset displayed options
-    this.onChange(null);
-    this.onTouched();
-  }
-
-  onValueChange(value: string): void {
-    this.selectedValue = value;
-    this.setFirstOption();
-    this.valueChange.emit(value); // Emit the value change event
-    this.onTouched(); // Mark control as touched
+    this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)];
+    this.control.reset();
   }
 
   loadMore(): void {
     const currentLength = this.displayedOptions.length;
-    const additionalOptions = this.filteredOptions.slice(currentLength, currentLength + this.pageSize);
+    const additionalOptions = this.filteredOptions.slice(
+      currentLength,
+      currentLength + this.pageSize,
+    );
     this.displayedOptions = [...this.displayedOptions, ...additionalOptions];
   }
 
   onPanelScroll(event: Event): void {
     const panel = event.target as HTMLElement;
-    const buffer = panel.clientHeight * 0.05; // 5% of the visible height
+    const buffer = panel.clientHeight * 0.05;
     if (panel.scrollTop + panel.clientHeight >= panel.scrollHeight - buffer) {
       this.loadMore();
     }
   }
 
-  writeValue(value: string | null): void {
+  writeValue(value: any): void {
     this.selectedValue = value;
-    if (value) {
-      this.onChange(value);
-    }
+    this.control.setValue(value, { emitEvent: false });
   }
 
-  registerOnChange(fn: (value: string | null) => void): void {
+  registerOnChange(fn: any): void {
     this.onChange = fn;
+    this.control.valueChanges.subscribe(fn);
   }
 
-  registerOnTouched(fn: () => void): void {
+  registerOnTouched(fn: any): void {
     this.onTouched = fn;
+    this.control.registerOnChange(fn);
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.isDisabled = isDisabled;
+    isDisabled ? this.control.disable() : this.control.enable();
+  }
+
+  validate(control: AbstractControl): ValidationErrors | null {
+    return this.control.valid ? null : this.control.errors;
+  }
+
+  registerOnValidatorChange?(fn: () => void): void {
+    this.control.statusChanges.subscribe(fn);
+  }
+
+  onValueChange(value: string): void {
+    this.selectedValue = value;
+    this.setFirstOption();
+    this.onChange(value);
+    this.onTouched();
   }
 
   setFirstOption(): void {
-    // Ensure selectedValue is the first element of options
     if (this.selectedValue) {
-      // Remove the selectedValue from the options array if it exists
-      this.options = this.options.filter(option => option !== this.selectedValue);
-      // Insert the selectedValue at the beginning of the options array
+      this.options = this.options.filter((option) => option !== this.selectedValue);
       this.options.unshift(this.selectedValue);
     }
     this.filteredOptions = [...this.options];
-    this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)]; // Reset displayed options
-    this.onChange(this.selectedValue); // Notify form control
+    this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)];
+    this.control.setValue(this.selectedValue);
   }
+  
 }

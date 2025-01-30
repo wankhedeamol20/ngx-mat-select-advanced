@@ -34,8 +34,7 @@
         <p>With default selection</p>
         <ngx-mat-select-advanced formControlName="colors" ngDefaultControl [options]="colors" [label]="'Colors'"
           [placeholder]="'Search or add a color'" [allowAddNew]="true" [defaultValue]="'Gray'" [pageSize]="5"
-          [itemSize]="48" [appearance]="'outline'" [addNewLabel]="'Add'" (newOptionAdded)="onNewColorAdded($event)"
-          (valueChange)="onColorValueChange($event)">
+          [itemSize]="48" [appearance]="'outline'" [addNewLabel]="'Add'" (newOptionAdded)="onNewColorAdded($event)">
         </ngx-mat-select-advanced>
       </div>
 
@@ -43,8 +42,7 @@
         <p>Without default selection</p>
         <ngx-mat-select-advanced formControlName="cities" ngDefaultControl [options]="cities" [label]="'Cities'"
           [placeholder]="'Search or add a city'" [allowAddNew]="true" [defaultValue]="''" [pageSize]="5" [itemSize]="48"
-          [appearance]="'outline'" [addNewLabel]="'Add'" (newOptionAdded)="onNewCityAdded($event)"
-          (valueChange)="onCitiesValueChange($event)">
+          [appearance]="'outline'" [addNewLabel]="'Add'" (newOptionAdded)="onNewCityAdded($event)">
         </ngx-mat-select-advanced>
       </div>
 
@@ -52,8 +50,7 @@
         <p>With no options </p>
         <ngx-mat-select-advanced formControlName="area" ngDefaultControl [options]="area" [label]="'Area'"
           [placeholder]="'Search or add a area'" [allowAddNew]="true" [defaultValue]="''" [pageSize]="5" [itemSize]="48"
-          [appearance]="'outline'" [addNewLabel]="'Add'" (newOptionAdded)="onNewCityAdded($event)"
-          (valueChange)="onAreaValueChange($event)">
+          [appearance]="'outline'" [addNewLabel]="'Add'" (newOptionAdded)="onNewCityAdded($event)">
         </ngx-mat-select-advanced>
       </div>
     </form>

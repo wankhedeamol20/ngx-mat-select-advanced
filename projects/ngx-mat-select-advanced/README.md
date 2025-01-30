@@ -30,6 +30,7 @@ npm i ngx-mat-select-advanced
 | `appearance` | `string` | `fill` | Set form feild style `'fill' or 'outline'` . |
 | `addNewLabel` | `string` | `Add` | Set label for new option. |
 | `noOptionsLabel` | `string` | `No options available` | Set label for no options. |
+| `validators` | `array` | `[]` | Set ractive form validators. |
 
 
 ### Outputs  
@@ -77,8 +78,14 @@ export class AppComponent {
     console.log('New color added:', newColor);
   }
 
-  onColorValueChange(value: string | null): void {
-    console.log('Selected color value:', value);
+  ngOnInit(): void {
+
+    this.form.get('colors')?.valueChanges.pipe(
+        distinctUntilChanged()
+    ).subscribe((value) => {
+      console.log('selected color', value);
+    });
+
   }
 }
 ```

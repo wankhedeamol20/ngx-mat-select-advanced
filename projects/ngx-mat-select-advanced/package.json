@@ -1,6 +1,6 @@
 {
   "name": "ngx-mat-select-advanced",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A reusable Angular library for custom mat-select with search and lazy loading",
   "author": "Amol Wankhede",
   "repository": {
