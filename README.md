@@ -24,6 +24,7 @@ npm i ngx-mat-select-advanced
 | `label` | `string` | `'Select an option'` | Label for the select component. |
 | `placeholder` |  `string` | `'Search or add new'`  | Placeholder for the search input. | 
 | `allowAddNew` | `boolean` | `true` | Allow adding a new option if not found in the list. |
+| `isClearable` | `boolean` | `true` | Enable or disable the ability to clear the selected value with a cross button. When set to `true`, displays a clear button to reset the selection. |
 | `ariaLabel` | `string` | `''` | Accessibility label for the component. |
 | `pageSize` | `number` | `5` | Number of options to load per lazy-loading batch. |
 | `itemSize` | `number` | `48` | Set options height. |
@@ -101,6 +102,7 @@ Then, add html inside `app.componet.html`
         [label]="'Colors'"
         [placeholder]="'Search or add a color'" 
         [allowAddNew]="true" 
+        [isClearable]="true"
         [defaultValue]="'Gray'" 
         [pageSize]="5"
         [itemSize]="48" 

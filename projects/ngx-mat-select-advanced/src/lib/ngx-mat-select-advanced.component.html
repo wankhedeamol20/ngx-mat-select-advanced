@@ -1,34 +1,37 @@
 <mat-form-field [appearance]="appearance" class="mat-select-advanced">
   <mat-label>{{ label }}</mat-label>
-  <mat-select [(value)]="selectedValue" (openedChange)="onDropdownOpened();"
-    (selectionChange)="onValueChange($event.value)" [attr.aria-label]="ariaLabel">
+  <mat-select #matSelect [formControl]="control" [(value)]="selectedValue" 
+    (selectionChange)="onValueChange($event.value)" (closed)="onClosed()" [attr.aria-label]="ariaLabel" role="listbox" aria-live="polite">
 
     <!-- Search box -->
     <mat-form-field appearance="fill" class="mat-select-advanced-search">
-      <input matInput #searchInput type="text" placeholder="{{ placeholder }}" [(ngModel)]="searchText"
-        (input)="filterOptions(searchText)" />
+      <input matInput #searchInput type="text" [formControl]="searchControl" placeholder="{{ placeholder }}" [attr.araia-label]="placeholder"  />
     </mat-form-field>
 
-    <div mat-select-panel class="mat-select-advanced-panel" (scroll)="onPanelScroll($event)"
+    <div mat-select-panel class="mat-select-advanced-panel" [ngClass]="{'overflow-y-auto' : pageSize !== rawOptions.length}" (scroll)="onPanelScroll($event)"
       [style.max-height]="((itemSize * (pageSize)) - 5) + 'px'">
 
-      <mat-option *ngFor="let option of displayedOptions" [value]="option">
+      <mat-option *ngFor="let option of displayedOptions" [value]="option" [attr.aria-selected]="option === control.value" role="option">
         {{ option }}
       </mat-option>
 
       <!-- Add new option -->
-      <mat-option *ngIf="showAddOption" class="new-option" (click)="addOption(searchText)">
-        {{addNewLabel}} "{{ searchText }}"
+      <mat-option #newOption *ngIf="showAddOption && searchControl.valid" class="new-option" (onSelectionChange)="addOption()" [value]="searchControl.value"
+        [attr.aria-selected]="searchControl.value === control.value" role="option">
+        {{addNewLabel}} "{{ searchControl.value }}"
       </mat-option>
 
       <!-- Empty state message -->
-      <mat-option *ngIf="filteredOptions.length === 0 && !searchText" disabled>
+      <mat-option *ngIf="filteredOptions && filteredOptions.length === 0 && !searchControl.value" disabled>
         {{noOptionsLabel}}
       </mat-option>
       
     </div>
   </mat-select>
-  <button mat-icon-button matSuffix class="scale-75" type="button" (click)="clearSelection()" *ngIf="selectedValue">
-    <mat-icon>close</mat-icon>
-  </button>
+  @if (isClearable) {
+    <button mat-icon-button matSuffix class="scale-75" type="button" (click)="clearSelection()" *ngIf="selectedValue && !control.disabled">
+      <mat-icon>close</mat-icon>
+    </button>
+  }
+  <mat-error *ngIf="control.hasError('required') && control.invalid && control.touched">{{ errorMessage }}</mat-error>
 </mat-form-field>

@@ -1,11 +1,12 @@
-import { Component, ElementRef, EventEmitter, forwardRef, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, forwardRef, Input, OnDestroy, OnInit, Output, SimpleChanges, viewChild, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AbstractControl, ControlValueAccessor, FormControl, FormsModule, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, ValidatorFn, } from '@angular/forms';
+import { AbstractControl, ControlValueAccessor, FormControl, FormsModule, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, ValidatorFn, ReactiveFormsModule, Validator, Validators } from '@angular/forms';
 import { MatFormFieldAppearance, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
+import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'ngx-mat-select-advanced',
@@ -16,7 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatInputModule,
     MatIconModule,
     MatSelectModule,
-    MatButtonModule],
+    MatButtonModule, ReactiveFormsModule],
   templateUrl: './ngx-mat-select-advanced.component.html',
   styles: `
   .new-option {
@@ -29,6 +30,9 @@ import { MatButtonModule } from '@angular/material/button';
     width: 100%;
   }
   .mat-select-advanced-panel {
+    overflow-y: auto;
+  }
+  .overflow-y-auto {
     overflow-y: auto;
   }
   `,
@@ -45,7 +49,7 @@ import { MatButtonModule } from '@angular/material/button';
     },
   ]
 })
-export class NgxMatSelectAdvancedComponent implements ControlValueAccessor, OnInit {
+export class NgxMatSelectAdvancedComponent implements ControlValueAccessor, Validator, OnInit, OnDestroy, AfterViewInit {
 
   @Input() options: string[] = []; // Options passed from parent
   @Input() label: string = 'Select an option'; // Label for the select field
@@ -59,6 +63,8 @@ export class NgxMatSelectAdvancedComponent implements ControlValueAccessor, OnIn
   @Input() addNewLabel: string = 'Add'; // Label for adding new option button
   @Input() noOptionsLabel: string = 'No options available'; // Label for no options available
   @Input() validators: ValidatorFn[] = []; // Accept validators as an input
+  @Input() errorMessage: string = 'This field is required'; // Error message for validation
+  @Input() isClearable: boolean = false; // Flag to show/hide clear selection button
 
   @Output() newOptionAdded = new EventEmitter<string>(); // Emit new option added
 
@@ -70,11 +76,13 @@ export class NgxMatSelectAdvancedComponent implements ControlValueAccessor, OnIn
 
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
+  @ViewChild('matSelect') matSelect!: MatSelect;
+
   control: FormControl = new FormControl();
+  searchControl: FormControl = new FormControl();
   filteredOptions: string[] = [];
   displayedOptions: string[] = []; // Options currently displayed in the dropdown
-  rawOptions: string[] = [];
-  searchText: string = '';
+  rawOptions: string[] = []; // Original options list
   selectedValue: string | null = null;
   showAddOption: boolean = false;
   
@@ -84,8 +92,16 @@ export class NgxMatSelectAdvancedComponent implements ControlValueAccessor, OnIn
     }
     if (this.validators?.length) {
       this.control.setValidators(this.validators);
+      this.searchControl.setValidators(this.validators);
+      this.searchControl.removeValidators([Validators.required]);
     }
     this.control.updateValueAndValidity();
+
+    this.searchControl.valueChanges.pipe(distinctUntilChanged()).subscribe((value) => {
+      this.filterOptions();
+    });
+
+    this.placeholder = this.placeholder.length > 25 ? this.placeholder.slice(0, 22) + '...' : this.placeholder;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -96,28 +112,58 @@ export class NgxMatSelectAdvancedComponent implements ControlValueAccessor, OnIn
 
       if (this.defaultValue && this.options.includes(this.defaultValue)) {
         this.selectedValue = this.defaultValue;
-      } else if (this.options.length === 1) {
-        this.selectedValue = this.options[0];
       }
+
       this.setFirstOption();
     }
   }
 
   ngOnDestroy() {
     this.control.reset();
+    document.removeEventListener('keydown', this.onKeydown);
   }
 
-  filterOptions(search: string): void {
-    this.searchText = search.trim();
+  ngAfterViewInit(): void {
+    this.matSelect.openedChange.subscribe((opened) => this.onDropdownOpened(opened));
+  }
+
+  onKeydown = (event: KeyboardEvent) => {
+    const panel = document.querySelector('.mat-select-advanced-panel') as HTMLElement;
+    if (!panel) return;
+
+    if (event.key === 'ArrowDown') {
+      panel.scrollTop += this.itemSize;
+    } else if (event.key === 'ArrowUp') {
+      panel.scrollTop -= this.itemSize;
+    }
+  }
+
+
+  filterOptions(): void {
+    const searchText = this.normalizeString(this.searchControl.value?.trim());
     this.filteredOptions = this.options.filter((option) =>
-      option.toLowerCase().includes(this.searchText.toLowerCase()),
+    {
+      const normalizedOption = this.normalizeString(option);
+      return normalizedOption.includes(searchText);
+    }
     );
     this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)];
     this.showAddOption =
-      this.allowAddNew && this.searchText !== '' && !this.options.includes(this.searchText);
+      this.allowAddNew && searchText !== '' && !this.options.includes(searchText) && !this.displayedOptions.length;
+
+      queueMicrotask(() => {
+        this.matSelect._keyManager.setFirstItemActive();
+      });
   }
 
-  addOption(option: string): void {
+  private normalizeString(searchText: string): string {
+    return searchText.trim().toLowerCase();
+  }
+
+  addOption(): void {
+
+    let option: string = this.searchControl.value;
+
     if (this.allowAddNew && option.trim() && !this.options.includes(option)) {
       this.options.unshift(option);
       this.filteredOptions.push(option);
@@ -126,21 +172,34 @@ export class NgxMatSelectAdvancedComponent implements ControlValueAccessor, OnIn
       this.newOptionAdded.emit(option);
       this.control.setValue(this.selectedValue);
     }
+
+    this.showAddOption = false;
+
+    this.matSelect.close();
   }
 
-  onDropdownOpened(): void {
-    if (this.searchInput) {
-      this.searchText = '';
-      this.showAddOption = false;
+  onDropdownOpened(isOpen : boolean): void {
+    if(isOpen){
+      document.addEventListener('keydown', this.onKeydown);
+      if (this.searchInput) {
+        this.searchControl.reset();
+        this.showAddOption = false;
+        this.filteredOptions = [...this.options];
+        this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)];
+        this.searchInput.nativeElement.focus();
+     }
+
+    } else {
+      document.removeEventListener('keydown', this.onKeydown);
       this.filteredOptions = [...this.options];
       this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)];
-      this.searchInput.nativeElement.focus();
     }
+
   }
 
   clearSelection(): void {
     this.selectedValue = null;
-    this.searchText = '';
+    this.searchControl.reset();
     this.options = [...this.rawOptions];
     this.filteredOptions = [...this.options];
     this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)];
@@ -196,6 +255,7 @@ export class NgxMatSelectAdvancedComponent implements ControlValueAccessor, OnIn
     this.setFirstOption();
     this.onChange(value);
     this.onTouched();
+    this.valueChange.emit(value);
   }
 
   setFirstOption(): void {
@@ -206,6 +266,10 @@ export class NgxMatSelectAdvancedComponent implements ControlValueAccessor, OnIn
     this.filteredOptions = [...this.options];
     this.displayedOptions = [...this.filteredOptions.slice(0, this.pageSize)];
     this.control.setValue(this.selectedValue);
+  }
+
+  onClosed(): void {
+    this.searchControl.reset();
   }
   
 }

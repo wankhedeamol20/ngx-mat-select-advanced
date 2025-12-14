@@ -34,7 +34,7 @@
         <p>With default selection</p>
         <ngx-mat-select-advanced formControlName="colors" ngDefaultControl [options]="colors" [label]="'Colors'"
           [placeholder]="'Search or add a color'" [allowAddNew]="true" [defaultValue]="'Gray'" [pageSize]="5"
-          [itemSize]="48" [appearance]="'outline'" [addNewLabel]="'Add'" (newOptionAdded)="onNewColorAdded($event)">
+          [itemSize]="48" [appearance]="'outline'" [addNewLabel]="'Add'" (newOptionAdded)="onNewColorAdded($event)" [isClearable]="true">
         </ngx-mat-select-advanced>
       </div>
 
